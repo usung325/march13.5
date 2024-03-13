@@ -63,7 +63,7 @@ Matter.Events.on(engine, 'afterUpdate', function(){
             bodyA: stack.bodies[1],
             bodyB: stack.bodies[0],
             stiffness: 0.00009,
-            length: 25
+            length: 27
         });
         Matter.World.add(engine.world, string2);
     }
