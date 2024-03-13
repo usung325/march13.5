@@ -68,7 +68,7 @@ let attached = false;
 
 
 
-// need a better way to handle event listeners
+
 let currKeyDown = false;
 window.addEventListener('keydown', function(event) {
     console.log('Key pressed:', event.key);
@@ -79,19 +79,24 @@ window.addEventListener('keydown', function(event) {
         console.log(stack.bodies[0].position.x);
     }
     // Here you can add logic to interact with Matter.js objects
+});
 
+window.addEventListener('keyup', function(event){
+    if(event.key === 'e'){
+        currKeyDown = false;
+    }
+});
 
-    Matter.Events.on(engine, 'afterUpdate', function(){
-        if(!attached && (Math.abs(stack.bodies[0].position.x-stack.bodies[1].position.x) < 7 || Math.abs(stack.bodies[0].position.y-stack.bodies[1].position.y) < 7)&& currKeyDown){
-            let string2 = Matter.Constraint.create({
-                bodyA: stack.bodies[1],
-                bodyB: stack.bodies[0],
-                stiffness: 0.00001,
-                length: 27
-            });
-            Matter.World.add(engine.world, string2);
-        }
-    })
+Matter.Events.on(engine, 'afterUpdate', function(){
+    if(!attached && (Math.abs(stack.bodies[0].position.x-stack.bodies[1].position.x) < 7 || Math.abs(stack.bodies[0].position.y-stack.bodies[1].position.y) < 7)&& currKeyDown){
+        let string2 = Matter.Constraint.create({
+            bodyA: stack.bodies[1],
+            bodyB: stack.bodies[0],
+            stiffness: 0.0001,
+            length: 27
+        });
+        Matter.World.add(engine.world, string2);
+    }
 });
 
 // load objs into world + mouseConstraint
