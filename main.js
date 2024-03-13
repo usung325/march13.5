@@ -1,3 +1,9 @@
+
+
+
+
+
+
 // start engine
 let engine = Matter.Engine.create();
 
@@ -54,20 +60,39 @@ let stack = Matter.Composites.stack(700,200,3,3,0,0, function(x,y){
 // });
 
 let attached = false;
-Matter.Events.on(mouseConstraint, 'mousemove', function(e){
-    if(e.body === stack.bodies[0]) firing = true;
-});
-Matter.Events.on(engine, 'afterUpdate', function(){
-    if(!attached && Math.abs(stack.bodies[0].position.x-stack.bodies[1].position.x)<5){
-        let string2 = Matter.Constraint.create({
-            bodyA: stack.bodies[1],
-            bodyB: stack.bodies[0],
-            stiffness: 0.00009,
-            length: 27
-        });
-        Matter.World.add(engine.world, string2);
+
+// not needed
+// Matter.Events.on(mouseConstraint, 'mousemove', function(e){
+//     if(e.body === stack.bodies[0]) firing = true;
+// });
+
+
+
+// need a better way to handle event listeners
+let currKeyDown = false;
+window.addEventListener('keydown', function(event) {
+    console.log('Key pressed:', event.key);
+    if(event.key === 'e'){
+        currKeyDown = true;
+        console.log('this is distance', Math.abs(stack.bodies[0].position.x-stack.bodies[1].position.x));
+        console.log('this is distance', Math.abs(stack.bodies[0].position.y-stack.bodies[1].position.y));
+        console.log(stack.bodies[0].position.x);
     }
-})
+    // Here you can add logic to interact with Matter.js objects
+
+
+    Matter.Events.on(engine, 'afterUpdate', function(){
+        if(!attached && (Math.abs(stack.bodies[0].position.x-stack.bodies[1].position.x) < 7 || Math.abs(stack.bodies[0].position.y-stack.bodies[1].position.y) < 7)&& currKeyDown){
+            let string2 = Matter.Constraint.create({
+                bodyA: stack.bodies[1],
+                bodyB: stack.bodies[0],
+                stiffness: 0.00001,
+                length: 27
+            });
+            Matter.World.add(engine.world, string2);
+        }
+    })
+});
 
 // load objs into world + mouseConstraint
 Matter.World.add(engine.world,[stack, ground, mouseConstraint]);
@@ -75,3 +100,8 @@ Matter.World.add(engine.world,[stack, ground, mouseConstraint]);
 // run engine
 Matter.Runner.run(engine);
 Matter.Render.run(render);
+
+
+
+////////////////////////
+
