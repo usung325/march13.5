@@ -45,21 +45,32 @@ let stack = Matter.Composites.stack(700,200,3,3,0,0, function(x,y){
 });
 
 
+// // create a string that attaches two objects together with a constraint
+// let string = Matter.Constraint.create({
+//     // pointA: {x: stack.bodies[0].position.x, y: stack.bodies[0].position.y },
+//     bodyA: stack.bodies[1],
+//     bodyB: stack.bodies[0],
+//     stiffness: 0.9
+// });
 
-// create a string that attaches two objects together with a constraint
-let string = Matter.Constraint.create({
-    // pointA: {x: stack.bodies[0].position.x, y: stack.bodies[0].position.y },
-    bodyA: stack.bodies[1],
-    bodyB: stack.bodies[0],
-    stiffness: 0.9
+let attached = false;
+Matter.Events.on(mouseConstraint, 'mousemove', function(e){
+    if(e.body === stack.bodies[0]) firing = true;
 });
-
-console.log(stack.bodies[0])
-console.log(stack.bodies[0].position.x);
-console.log(stack.bodies[0].position.y);
+Matter.Events.on(engine, 'afterUpdate', function(){
+    if(!attached && Math.abs(stack.bodies[0].position.x-stack.bodies[1].position.x)<5){
+        let string2 = Matter.Constraint.create({
+            bodyA: stack.bodies[1],
+            bodyB: stack.bodies[0],
+            stiffness: 0.00009,
+            length: 25
+        });
+        Matter.World.add(engine.world, string2);
+    }
+})
 
 // load objs into world + mouseConstraint
-Matter.World.add(engine.world,[string, stack, ground, mouseConstraint]);
+Matter.World.add(engine.world,[stack, ground, mouseConstraint]);
 
 // run engine
 Matter.Runner.run(engine);
