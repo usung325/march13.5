@@ -42,15 +42,24 @@ render.mouse = mouse;
 let stack = Matter.Composites.stack(700,200,3,3,0,0, function(x,y){
     let sides = Math.round(Matter.Common.random(3, 5));
     return Matter.Bodies.polygon(x,y,sides,30);
-})
+});
 
+
+
+// create a string that attaches two objects together with a constraint
+let string = Matter.Constraint.create({
+    // pointA: {x: stack.bodies[0].position.x, y: stack.bodies[0].position.y },
+    bodyA: stack.bodies[1],
+    bodyB: stack.bodies[0],
+    stiffness: 0.9
+});
 
 console.log(stack.bodies[0])
 console.log(stack.bodies[0].position.x);
 console.log(stack.bodies[0].position.y);
 
 // load objs into world + mouseConstraint
-Matter.World.add(engine.world,[stack, ground, mouseConstraint]);
+Matter.World.add(engine.world,[string, stack, ground, mouseConstraint]);
 
 // run engine
 Matter.Runner.run(engine);
