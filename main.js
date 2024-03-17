@@ -70,6 +70,7 @@ let attached = false;
 
 
 let currKeyDown = false;
+let removeConst = false;
 window.addEventListener('keydown', function(event) {
     console.log('Key pressed:', event.key);
     if(event.key === 'e'){
@@ -78,6 +79,10 @@ window.addEventListener('keydown', function(event) {
         console.log('this is distance', Math.abs(stack.bodies[0].position.y-stack.bodies[1].position.y));
         console.log(stack.bodies[0].position.x);
     }
+
+    if(event.key === 'x'){
+        removeConst = true;
+    }
     // Here you can add logic to interact with Matter.js objects
 });
 
@@ -85,10 +90,13 @@ window.addEventListener('keyup', function(event){
     if(event.key === 'e'){
         currKeyDown = false;
     }
+    if(event.key === 'x'){
+        removeConst = false;
+    }
 });
 
 Matter.Events.on(engine, 'afterUpdate', function(){
-    if(!attached && (Math.abs(stack.bodies[0].position.x-stack.bodies[1].position.x) < 7 || Math.abs(stack.bodies[0].position.y-stack.bodies[1].position.y) < 7)&& currKeyDown){
+    if(!attached && (Math.abs(stack.bodies[0].position.x-stack.bodies[1].position.x) < 40 && Math.abs(stack.bodies[0].position.y-stack.bodies[1].position.y) < 40)&& currKeyDown){
         let string2 = Matter.Constraint.create({
             bodyA: stack.bodies[1],
             bodyB: stack.bodies[0],
