@@ -8,6 +8,7 @@
 let engine = Matter.Engine.create();
 engine.gravity.y = 0;
 
+
 const runner = Matter.Runner.create();
 
 
@@ -20,6 +21,9 @@ let render = Matter.Render.create({
         wireframes: false
     }
 });
+
+// create curr click tracker
+let currId = 0;
 
 
 // create ground obj
@@ -46,11 +50,16 @@ let mouseConstraint = Matter.MouseConstraint.create(engine, {
 render.mouse = mouse;
 
 
-
+// to click and know which object its clicking
 Matter.Events.on(runner, "tick", event => {
   if (mouseConstraint.body) {
     console.log('body found');
-    Matter.Composite.remove(stack, mouseConstraint.body);
+    console.log(mouseConstraint.body); 
+    mouseConstraint.body.frictionAir = 0.1;
+    currId = mouseConstraint.body
+    // currId = mouseConstraint.body.id;
+    // Matter.Composite.remove(stack, mouseConstraint.body);
+
   }
 });
 
@@ -111,11 +120,13 @@ let attached = false;
 window.addEventListener('keydown', function(event) {
     if(event.key === 'e'){
         console.log('key logged');
-        Matter.Body.rotate(stack.bodies[3], Math.PI / 12);
+        // Matter.Body.rotate(stack.bodies[0], Math.PI / 12);
+        currId.angle = currId.angle + 0.01;
     }
     else if(event.key === 'q'){
         console.log('key logged');
-        Matter.Body.rotate(stack.bodies[3], -(Math.PI / 12));
+        // Matter.Body.rotate(currId, -(Math.PI / 12));
+        currId.angle = currId.angle - 0.01;
     }
     else if(event.key === 'l'){
         console.log('ley logged');
