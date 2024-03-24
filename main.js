@@ -131,10 +131,12 @@ window.addEventListener('keydown', function(event) {
     else if(event.key === 'l'){
         console.log('pressed l, everything is now frozen or released');
         for( i=0; i<stack.bodies.length; i++){
-            stack.bodies[i].isStatic = !stack.bodies[i].isStatic
+            // stack.bodies[i].isStatic = !stack.bodies[i].isStatic
+            stack.bodies[i].frictionAir = 0.1;
             Matter.Body.setVelocity(stack.bodies[i], {x: 0, y:0});
             // Matter.Body.setPosition(stack.bodies[i], [updateVelocity=false]);
         };
+        
     }
 });
 
