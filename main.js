@@ -8,6 +8,9 @@
 let engine = Matter.Engine.create();
 engine.gravity.y = 0;
 
+const runner = Matter.Runner.create();
+
+
 let render = Matter.Render.create({
     element: document.body,
     engine: engine,
@@ -34,6 +37,7 @@ let ground = Matter.Bodies.rectangle(400, 600, 2500, 60, { isStatic : true });
 // mouse constraint
 let mouse = Matter.Mouse.create(render.canvas);
 let mouseConstraint = Matter.MouseConstraint.create(engine, {
+    element: document.body,
     mouse: mouse,
     constraint: {
         render: {visible: false}
@@ -41,13 +45,16 @@ let mouseConstraint = Matter.MouseConstraint.create(engine, {
 });
 render.mouse = mouse;
 
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// create stacks
-// let stack = Matter.Composites.stack(300,300,8,8,0,0, function (x,y) {
-//     return Matter.Bodies.rectangle(x,y,20,20);
-// })
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+
+Matter.Events.on(runner, "tick", event => {
+  if (mouseConstraint.body) {
+    console.log('body found');
+    Matter.Composite.remove(stack, mouseConstraint.body);
+  }
+});
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 //this is original code
 // let stack = Matter.Composites.stack(700,200,3,3,0,0, function(x,y){
@@ -104,11 +111,17 @@ let attached = false;
 window.addEventListener('keydown', function(event) {
     if(event.key === 'e'){
         console.log('key logged');
-        Matter.Body.rotate(stack.bodies[3], Math.PI / 15);
+        Matter.Body.rotate(stack.bodies[3], Math.PI / 12);
     }
-    else if(event.key == 'q'){
+    else if(event.key === 'q'){
         console.log('key logged');
-        Matter.Body.rotate(stack.bodies[3], -(Math.PI / 15));
+        Matter.Body.rotate(stack.bodies[3], -(Math.PI / 12));
+    }
+    else if(event.key === 'l'){
+        console.log('ley logged');
+        for( i=0; i<stack.bodies.length; i++){
+            Matter.Body.setVelocity(stack.bodies[i], {x: 0, y:0});
+        };
     }
 });
 
@@ -164,7 +177,9 @@ window.addEventListener('keydown', function(event) {
 // load objs into world + mouseConstraint
 Matter.World.add(engine.world,[stack, ground, mouseConstraint]);
 
+
 // run engine
+Matter.Runner.start(runner, engine);
 Matter.Runner.run(engine);
 Matter.Render.run(render);
 
