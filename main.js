@@ -115,6 +115,8 @@ function createBodiesFromJson(data) {
 
 window.addEventListener('keydown', function(event) {
     if(event.key === 't'){
+        // debugging key
+
         // console.log(currId);
         // console.log(compStack);
         console.log(compStack.bodies);
@@ -149,23 +151,16 @@ window.addEventListener('keydown', function(event) {
             restitution: 0,
             sleepThreshold: 1
         });
-        console.log(finalBody.parts);
-        console.log('this above is init');
 
+        // add all bodies onto ('arrParts')
         for (i = 0; i < compStack.bodies.length; i++){
             arrParts.push(compStack.bodies[i])
         };
 
-        // ('arrParts') made up on ('compStack.bodies[i]') added to 
-        // parent body aka ('finalBody')
+        // ('arrParts') made up on ('compStack.bodies[i]') added to parent body aka ('finalBody')
         Matter.Body.setParts(finalBody, arrParts);
 
-        console.log(finalBody.parts);
-        console.log('this is post add');
-
-        console.log(finalBody.parts);
-        console.log('this is post splice');
-
+        // remove rest of compStack objects
         compStack.bodies.splice(0, compStack.bodies.length);
         Matter.Composite.add(compStack, finalBody);
         Matter.World.add(engine.world, compStack);
