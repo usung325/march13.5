@@ -68,11 +68,11 @@ render.mouse = mouse; // unsure
 // load json to make Vertices
 function createBodiesFromJson(data) {
     const fixtures = data['tangram'].fixtures;
-    const posArrX = [551 + xOff,630 + xOff,735 + xOff,605 + xOff,697 + xOff,653 + xOff];
-    const posArrY = [300 + yOff,277 + yOff,300 + yOff,412 + yOff,455 + yOff,344 + yOff];
+    const posArrX = [551 + xOff,607 + xOff,734 + xOff,605 + xOff,697 + xOff,653 + xOff, 773];
+    const posArrY = [300 + yOff,300 + yOff,300 + yOff,411 + yOff,453 + yOff,344 + yOff, 306];
 
     compStack = Matter.Composite.create();
-    for (i = 0; i < 6; i++) {
+    for (i = 0; i < 7; i++) {
         console.log(fixtures[i].vertices[0]);
 
         stack = Matter.Bodies.fromVertices(posArrX[i], posArrY[i], fixtures[i].vertices[0], {
