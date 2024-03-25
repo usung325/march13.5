@@ -1,255 +1,166 @@
+fetch('./temp.json')
+    .then(response => response.json())
+    .then(data => createBodiesFromJson(data))
+    .catch(error => console.error('Error loading JSON file:', error));
+
+
+const xOff = 120;
+const yOff = 50;
+
+let stack;
+let compStack;
+let finalBody;
+
+// tracker for which obj clicked
+let currId = 0;
+
 // start engine
 let engine = Matter.Engine.create();
+
+// no downwards gravity
 engine.gravity.y = 0;
-// engine.constraintIterations = 600;
-// engine.positionIterations = 600;
-// engine.velocityIterations = 600;
 
-
+// need this for allowing click selection
 const runner = Matter.Runner.create();
 
+Matter.Events.on(runner, "tick", event => {
+    if (mouseConstraint.body) { // the current body being moved by user
+        console.log(mouseConstraint.body); // debugging
+        mouseConstraint.body.frictionAir = 0.1; // set frictionAir higher
+        currId = mouseConstraint.body;
+    }
+});
+
+// create render
 let render = Matter.Render.create({
-    element: document.body,
-    engine: engine,
-    options : {
+    element: document.body, // unsure
+    engine: engine, // unsure
+    options: {
         width: window.innerWidth,
         height: window.innerHeight,
         wireframes: false
     }
 });
 
-// create curr click tracker
-let currId = 0;
+// create walls 
+let ground = Matter.Bodies.rectangle(window.innerWidth / 2, window.innerHeight, window.innerWidth, 50, { isStatic: true });
+let ground2 = Matter.Bodies.rectangle(window.innerWidth / 2, 0, window.innerWidth, 50, { isStatic: true });
+let ground3 = Matter.Bodies.rectangle(window.innerWidth, window.innerHeight / 2, 10, window.innerHeight, { isStatic: true });
+let ground4 = Matter.Bodies.rectangle(0, window.innerHeight / 2, 10, window.innerHeight, { isStatic: true });
 
-
-// create ground obj
-let ground = Matter.Bodies.rectangle(window.innerWidth/2, window.innerHeight, window.innerWidth, 100, { isStatic : true });
-let ground2 = Matter.Bodies.rectangle(window.innerWidth/2, 0, window.innerWidth, 100, { isStatic : true });
-let ground3 = Matter.Bodies.rectangle(window.innerWidth, window.innerHeight/2, 60, window.innerHeight, { isStatic : true });
-let ground4 = Matter.Bodies.rectangle(0, window.innerHeight/2, 60, window.innerHeight, { isStatic : true });
-
-
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// create box obj
-// let boxA = Matter.Bodies.rectangle(400, 200, 80, 80);
-// let boxB = Matter.Bodies.rectangle(450, 50, 80, 80);
-// can also make them into constraints
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-// mouse constraint
+// referencing render from line 10
 let mouse = Matter.Mouse.create(render.canvas);
 let mouseConstraint = Matter.MouseConstraint.create(engine, {
-    element: document.body,
-    mouse: mouse,
+    element: document.body, // unsure
+    mouse: mouse, // unsure
     constraint: {
-        render: {visible: false}
+        render: { visible: false }
     }
 });
-render.mouse = mouse;
+
+render.mouse = mouse; // unsure
 
 
-// to click and know which object its clicking
-Matter.Events.on(runner, "tick", event => {
-  if (mouseConstraint.body) {
-    console.log('body found');
-    console.log(mouseConstraint.body); 
-    mouseConstraint.body.frictionAir = 0.1;
-    currId = mouseConstraint.body
-    // currId = mouseConstraint.body.id;
-    // Matter.Composite.remove(stack, mouseConstraint.body);
-
-  }
-});
-
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-//this is original code
-// let stack = Matter.Composites.stack(700,200,3,3,0,0, function(x,y){
-//     let sides = Math.round(Matter.Common.random(3, 5));
-//     return Matter.Bodies.polygon(x,y,sides,30);
-// });
-
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// test
+// let square = Matter.Bodies.fromVertices(window.innerWidth/2,window.innerHeight/2,[{ x:108, y:194 }, { x:18, y:18 }, { x:18, y:194 }]);
 
 
+// load json to make Vertices
+function createBodiesFromJson(data) {
+    const fixtures = data['tangram'].fixtures;
+    const posArrX = [551 + xOff,630 + xOff,735 + xOff,605 + xOff,697 + xOff,653 + xOff];
+    const posArrY = [300 + yOff,277 + yOff,300 + yOff,412 + yOff,455 + yOff,344 + yOff];
+
+    compStack = Matter.Composite.create();
+    for (i = 0; i < 6; i++) {
+        console.log(fixtures[i].vertices[0]);
+
+        stack = Matter.Bodies.fromVertices(posArrX[i], posArrY[i], fixtures[i].vertices[0], {
+            isStatic: data['tangram'].isStatic,
+            density: data['tangram'].density,
+            restitution: data['tangram'].restitution,
+            friction: data['tangram'].friction,
+            frictionAir: data['tangram'].frictionAir,
+            frictionStatic: data['tangram'].frictionStatic,
+            collisionFilter: data['tangram'].collisionFilter
+        });
+
+        // now add body ('stack') onto composite ('compStack')
+        Matter.Composite.add(compStack, stack);
+        Matter.World.add(engine.world, stack);
+    };
     
-let stack = Matter.Composites.stack(window.innerWidth/3, window.innerHeight/3, 8, 2, 5, 50, function(x,y){
-    // let sides = Math.floor((Math.random() * 5) + 3);
-    // return Matter.Bodies.polygon(x, y, sides, 50, {
-    //     render: {
-    //         // fillStyle: arrColor[randIndex]
-    //     }
+    // archived forEach method below
+    // fixtures.forEach(fixture => {
+    //     const vertices = fixture.vertices[0].map(vertex => {
+    //         return { x: vertex.x, y: vertex.y };
+    //     });
+
+    //     const xCoord = fixture.vertices[0][0].x;
+    //     const yCoord = fixture.vertices[0][0].y;
+    //     console.log(vertices);
+    //     console.log(vertices[0].x + 'this is small');
+    //     console.log(vertices[0].y + 'this is big');
+
+    //     const stack = Matter.Bodies.fromVertices(vertices[0].x, vertices[0].y, vertices, {
+    //         isStatic: data['tangram'].isStatic,
+    //         density: data['tangram'].density,
+    //         restitution: data['tangram'].restitution,
+    //         friction: data['tangram'].friction,
+    //         frictionAir: data['tangram'].frictionAir,
+    //         frictionStatic: data['tangram'].frictionStatic,
+    //         collisionFilter: data['tangram'].collisionFilter
+    //     });
+
+    //     Matter.World.add(engine.world, stack);
     // });
-    let listVerts = [[
-        {x : 18 , y : 195},
-        {x : 18 , y : 16},
-        {x : 107 , y : 195}
-    ],[
-        {x : 261 , y : 154},
-        {x : 292 , y : 186},
-        {x : 229 , y : 249},
-        {x : 198 , y : 218},
-        {x : 198 , y : 154}
-    ],[
-        {x : 198 , y : 195},
-        {x : 153 , y : 151},
-        {x : 197 , y : 105}
-    ]]
-
-    return Matter.Bodies.fromVertices(x, y, listVerts[Math.floor((Math.random() * 3))]);
-});
-
-
-// // create a string that attaches two objects together with a constraint
-// let string = Matter.Constraint.create({
-//     // pointA: {x: stack.bodies[0].position.x, y: stack.bodies[0].position.y },
-//     bodyA: stack.bodies[1],
-//     bodyB: stack.bodies[0],
-//     stiffness: 0.9
-// });
-
-let attached = false;
-
-// not needed
-// Matter.Events.on(mouseConstraint, 'mousemove', function(e){
-//     if(e.body === stack.bodies[0]) firing = true;
-// });
-
-let allTheBodies = Matter.Composite.allBodies(stack);
-
-
-let listBodies = [stack, ground, ground2, ground3, ground4, mouseConstraint];
-
+};
 
 window.addEventListener('keydown', function(event) {
-    if(event.key === 'w'){
-        console.log('key logged');
-        // Matter.Body.rotate(stack.bodies[0], Math.PI / 12);
-        currId.angle = currId.angle + 0.03;
+    if(event.key === 't'){
+        // console.log(currId);
+        console.log(compStack);
     }
+
     else if(event.key === 'q'){
-        console.log('key logged');
-        // Matter.Body.rotate(currId, -(Math.PI / 12));
         currId.angle = currId.angle - 0.03;
     }
-    else if(event.key == 't'){
-        console.log(stack);
-        console.log(listBodies);
+
+    else if(event.key === 'w'){
+        currId.angle = currId.angle + 0.03;
     }
-    else if(event.key === 'l'){
-        console.log('pressed l, everything is now frozen or released');
-        for( i=0; i<stack.bodies.length; i++){
-            // stack.bodies[i].isStatic = !stack.bodies[i].isStatic
-            stack.bodies[i].frictionAir = 0.1;
-            
-            Matter.Body.setVelocity(stack.bodies[i], {x: 0, y:0});
-            // Matter.Body.setPosition(stack.bodies[i], [updateVelocity=false]);
-        };
-        
-    }
-    else if(event.key === '0'){
-        Matter.Sleeping.set(allTheBodies[1], true);
-    }
+
     else if(event.key === 'e'){
-        for( i = 0; i<stack.bodies.length; i++){
-            // stack.bodies[i].force.x = 0;
-            // stack.bodies[i].force.y = 0;
-            // Matter.Body.setSpeed(stack.bodies[i], 0);
-            // stack.bodies[i].isSleeping = true;
-            stack.bodies[i].sleepThreshold = 1;
-            Matter.Sleeping.set(stack.bodies[i], true);
-        }
+        for( i = 0; i<compStack.bodies.length; i++){
+            compStack.bodies[i].sleepThreshold = 1;
+            Matter.Sleeping.set(compStack.bodies[i], true);
+        };
     }
+
     else if(event.key === 'r'){
-        for( i = 0; i<stack.bodies.length; i++){
-            Matter.Sleeping.set(stack.bodies[i], false);
-        }
+        for( i = 0; i<compStack.bodies.length; i++){
+            Matter.Sleeping.set(compStack.bodies[i], false);
+        };
     }
-    else if(event.key == 's'){
-        const body2 = Matter.Body.create({
-            parts: [stack.bodies[0], stack.bodies[1],
-            stack.bodies[2], stack.bodies[3],
-            stack.bodies[4], stack.bodies[5],
-            stack.bodies[6], stack.bodies[7],
-            stack.bodies[8], stack.bodies[9],
-            stack.bodies[10], stack.bodies[11],
-            stack.bodies[12], stack.bodies[13],
-            stack.bodies[14], stack.bodies[15]],
+
+    else if(event.key === 's'){
+        finalBody = Matter.Body.create({
             inertia: Infinity,
             friction: 10,
             restitution: 0,
             sleepThreshold: 1
-          });
-
-        // currently debugging if the problem with compisite is because the bodies exist in stack but now also in body2.
-        stack.bodies.splice(0, stack.bodies.length);
-        // listBodies.push(body2);
-        Matter.Composite.add(stack, body2);
-        Matter.World.add(engine.world,listBodies);
-
-         
-
+        });
+        for (i = 0; i < 5; i++){
+            Matter.Body.setParts(finalBody, compStack.bodies[i])
+        };
+        Matter.Composite.add(finalBody);
     }
-});
 
 
+})
 
-
-
-
-
-
-
-
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//enable this for click interaction
-// let currKeyDown = false;
-// let removeConst = false;
-// window.addEventListener('keydown', function(event) {
-//     console.log('Key pressed:', event.key);
-//     if(event.key === 'e'){
-//         currKeyDown = true;
-//         console.log('this is distance', Math.abs(stack.bodies[0].position.x-stack.bodies[1].position.x));
-//         console.log('this is distance', Math.abs(stack.bodies[0].position.y-stack.bodies[1].position.y));
-//         console.log(stack.bodies[0].position.x);
-//     }
-
-//     if(event.key === 'x'){
-//         removeConst = true;
-//     }
-//     // Here you can add logic to interact with Matter.js objects
-// });
-
-// window.addEventListener('keyup', function(event){
-//     if(event.key === 'e'){
-//         currKeyDown = false;
-//     }
-//     if(event.key === 'x'){
-//         removeConst = false;
-//     }
-// });
-
-// Matter.Events.on(engine, 'afterUpdate', function(){
-//     if(!attached && (Math.abs(stack.bodies[0].position.x-stack.bodies[1].position.x) < 40 && Math.abs(stack.bodies[0].position.y-stack.bodies[1].position.y) < 40)&& currKeyDown){
-//         let string2 = Matter.Constraint.create({
-//             bodyA: stack.bodies[1],
-//             bodyB: stack.bodies[0],
-//             stiffness: 0.0001,
-//             length: 27
-//         });
-//         Matter.World.add(engine.world, string2);
-//     }
-// });
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-
-
-
-
-
-// load objs into world + mouseConstraint
-Matter.World.add(engine.world,listBodies);
-
+// load objs into world 
+Matter.World.add(engine.world, [ground, ground2, ground3, ground4, mouseConstraint]);
 
 // run engine
 Matter.Runner.start(runner, engine);
@@ -258,5 +169,4 @@ Matter.Render.run(render);
 
 
 
-////////////////////////
 
