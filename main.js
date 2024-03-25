@@ -119,6 +119,9 @@ let attached = false;
 let allTheBodies = Matter.Composite.allBodies(stack);
 
 
+let listBodies = [stack, ground, ground2, ground3, ground4, mouseConstraint];
+
+
 window.addEventListener('keydown', function(event) {
     if(event.key === 'w'){
         console.log('key logged');
@@ -131,7 +134,8 @@ window.addEventListener('keydown', function(event) {
         currId.angle = currId.angle - 0.03;
     }
     else if(event.key == 't'){
-        console.log(allTheBodies);
+        console.log(stack);
+        console.log(listBodies);
     }
     else if(event.key === 'l'){
         console.log('pressed l, everything is now frozen or released');
@@ -161,6 +165,29 @@ window.addEventListener('keydown', function(event) {
         for( i = 0; i<stack.bodies.length; i++){
             Matter.Sleeping.set(stack.bodies[i], false);
         }
+    }
+    else if(event.key == 's'){
+        const body2 = Matter.Body.create({
+            parts: [stack.bodies[0], stack.bodies[1],
+            stack.bodies[2], stack.bodies[3],
+            stack.bodies[4], stack.bodies[5],
+            stack.bodies[6], stack.bodies[7],
+            stack.bodies[8], stack.bodies[9],
+            stack.bodies[10], stack.bodies[11],
+            stack.bodies[12], stack.bodies[13],
+            stack.bodies[14], stack.bodies[15]],
+            inertia: Infinity,
+            friction: 10,
+            restitution: 0,
+            sleepThreshold: 1
+          });
+
+        // currently debugging if the problem with compisite is because the bodies exist in stack but now also in body2.
+        stack.bodies.splice(0, stack.bodies.length);
+        // listBodies.push(body2);
+        Matter.Composite.add(stack, body2);
+        Matter.World.add(engine.world,listBodies);
+
     }
 });
 
@@ -210,7 +237,7 @@ window.addEventListener('keydown', function(event) {
 
 
 
-let listBodies = [stack, ground, ground2, ground3, ground4, mouseConstraint];
+
 
 
 // load objs into world + mouseConstraint
