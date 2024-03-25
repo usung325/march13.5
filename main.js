@@ -1,5 +1,3 @@
-
-
 // start engine
 let engine = Matter.Engine.create();
 engine.gravity.y = 0;
@@ -75,7 +73,7 @@ Matter.Events.on(runner, "tick", event => {
 
 
     
-let stack = Matter.Composites.stack(window.innerWidth/3, window.innerHeight/3, 8,2, 5, 50, function(x,y){
+let stack = Matter.Composites.stack(window.innerWidth/3, window.innerHeight/3, 8, 2, 5, 50, function(x,y){
     // let sides = Math.floor((Math.random() * 5) + 3);
     // return Matter.Bodies.polygon(x, y, sides, 50, {
     //     render: {
@@ -97,6 +95,7 @@ let stack = Matter.Composites.stack(window.innerWidth/3, window.innerHeight/3, 8
         {x : 153 , y : 151},
         {x : 197 , y : 105}
     ]]
+
     return Matter.Bodies.fromVertices(x, y, listVerts[Math.floor((Math.random() * 3))]);
 });
 
@@ -188,8 +187,16 @@ window.addEventListener('keydown', function(event) {
         Matter.Composite.add(stack, body2);
         Matter.World.add(engine.world,listBodies);
 
+         
+
     }
 });
+
+
+
+
+
+
 
 
 
