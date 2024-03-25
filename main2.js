@@ -133,8 +133,9 @@ window.addEventListener('keydown', function(event) {
         currId.angle = currId.angle - 0.03;
     }
     else if(event.key == 't'){
-        console.log(stack);
-        console.log(listBodies);
+        // console.log(stack);
+        // console.log(listBodies);
+        console.log(stack.bodies[0])
     }
     else if(event.key === 'l'){
         console.log('pressed l, everything is now frozen or released');
@@ -180,9 +181,16 @@ window.addEventListener('keydown', function(event) {
             restitution: 0,
             sleepThreshold: 1
           });
-          
+
+        console.log(body2.parts);
+        console.log('above is pre splice');
+
+        // body2.parts.splice(0,1);
+
         // currently debugging if the problem with compisite is because the bodies exist in stack but now also in body2.
         stack.bodies.splice(0, stack.bodies.length);
+
+        console.log(body2.parts);
         // listBodies.push(body2);
         Matter.Composite.add(stack, body2);
         Matter.World.add(engine.world,listBodies);

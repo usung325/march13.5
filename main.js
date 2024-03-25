@@ -10,6 +10,7 @@ const yOff = 50;
 let stack;
 let compStack;
 let finalBody;
+let arrParts = [];
 
 // tracker for which obj clicked
 let currId = 0;
@@ -60,11 +61,6 @@ let mouseConstraint = Matter.MouseConstraint.create(engine, {
 
 render.mouse = mouse; // unsure
 
-
-// test
-// let square = Matter.Bodies.fromVertices(window.innerWidth/2,window.innerHeight/2,[{ x:108, y:194 }, { x:18, y:18 }, { x:18, y:194 }]);
-
-
 // load json to make Vertices
 function createBodiesFromJson(data) {
     const fixtures = data['tangram'].fixtures;
@@ -77,7 +73,8 @@ function createBodiesFromJson(data) {
 
         stack = Matter.Bodies.fromVertices(posArrX[i], posArrY[i], fixtures[i].vertices[0], {
             isStatic: data['tangram'].isStatic,
-            density: data['tangram'].density,
+            // density: data['tangram'].density,
+            density: 0.001,
             restitution: data['tangram'].restitution,
             friction: data['tangram'].friction,
             frictionAir: data['tangram'].frictionAir,
@@ -87,9 +84,9 @@ function createBodiesFromJson(data) {
 
         // now add body ('stack') onto composite ('compStack')
         Matter.Composite.add(compStack, stack);
-        Matter.World.add(engine.world, stack);
     };
-    
+    Matter.World.add(engine.world, compStack);
+
     // archived forEach method below
     // fixtures.forEach(fixture => {
     //     const vertices = fixture.vertices[0].map(vertex => {
@@ -119,7 +116,8 @@ function createBodiesFromJson(data) {
 window.addEventListener('keydown', function(event) {
     if(event.key === 't'){
         // console.log(currId);
-        console.log(compStack);
+        // console.log(compStack);
+        console.log(compStack.bodies);
     }
 
     else if(event.key === 'q'){
@@ -131,6 +129,7 @@ window.addEventListener('keydown', function(event) {
     }
 
     else if(event.key === 'e'){
+        // console.log(compStack.bodies);
         for( i = 0; i<compStack.bodies.length; i++){
             compStack.bodies[i].sleepThreshold = 1;
             Matter.Sleeping.set(compStack.bodies[i], true);
@@ -150,10 +149,26 @@ window.addEventListener('keydown', function(event) {
             restitution: 0,
             sleepThreshold: 1
         });
-        for (i = 0; i < 5; i++){
-            Matter.Body.setParts(finalBody, compStack.bodies[i])
+        console.log(finalBody.parts);
+        console.log('this above is init');
+
+        for (i = 0; i < compStack.bodies.length; i++){
+            arrParts.push(compStack.bodies[i])
         };
-        Matter.Composite.add(finalBody);
+
+        // ('arrParts') made up on ('compStack.bodies[i]') added to 
+        // parent body aka ('finalBody')
+        Matter.Body.setParts(finalBody, arrParts);
+
+        console.log(finalBody.parts);
+        console.log('this is post add');
+
+        console.log(finalBody.parts);
+        console.log('this is post splice');
+
+        compStack.bodies.splice(0, compStack.bodies.length);
+        Matter.Composite.add(compStack, finalBody);
+        Matter.World.add(engine.world, compStack);
     }
 
 
