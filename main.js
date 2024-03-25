@@ -1,23 +1,21 @@
 
 
-
-
-
-
 // start engine
 let engine = Matter.Engine.create();
 engine.gravity.y = 0;
+// engine.constraintIterations = 600;
+// engine.positionIterations = 600;
+// engine.velocityIterations = 600;
 
 
 const runner = Matter.Runner.create();
-
 
 let render = Matter.Render.create({
     element: document.body,
     engine: engine,
     options : {
-        width: 1600,
-        height: 800,
+        width: window.innerWidth,
+        height: window.innerHeight,
         wireframes: false
     }
 });
@@ -27,8 +25,10 @@ let currId = 0;
 
 
 // create ground obj
-let ground = Matter.Bodies.rectangle(400, 600, 2500, 60, { isStatic : true });
-
+let ground = Matter.Bodies.rectangle(window.innerWidth/2, window.innerHeight, window.innerWidth, 100, { isStatic : true });
+let ground2 = Matter.Bodies.rectangle(window.innerWidth/2, 0, window.innerWidth, 100, { isStatic : true });
+let ground3 = Matter.Bodies.rectangle(window.innerWidth, window.innerHeight/2, 60, window.innerHeight, { isStatic : true });
+let ground4 = Matter.Bodies.rectangle(0, window.innerHeight/2, 60, window.innerHeight, { isStatic : true });
 
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -75,7 +75,7 @@ Matter.Events.on(runner, "tick", event => {
 
 
     
-let stack = Matter.Composites.stack(700, 0, 4, 2, 5, 100, function(x,y){
+let stack = Matter.Composites.stack(window.innerWidth/3, window.innerHeight/3, 8,2, 5, 50, function(x,y){
     // let sides = Math.floor((Math.random() * 5) + 3);
     // return Matter.Bodies.polygon(x, y, sides, 50, {
     //     render: {
@@ -116,27 +116,51 @@ let attached = false;
 //     if(e.body === stack.bodies[0]) firing = true;
 // });
 
+let allTheBodies = Matter.Composite.allBodies(stack);
+
 
 window.addEventListener('keydown', function(event) {
-    if(event.key === 'e'){
+    if(event.key === 'w'){
         console.log('key logged');
         // Matter.Body.rotate(stack.bodies[0], Math.PI / 12);
-        currId.angle = currId.angle + 0.01;
+        currId.angle = currId.angle + 0.03;
     }
     else if(event.key === 'q'){
         console.log('key logged');
         // Matter.Body.rotate(currId, -(Math.PI / 12));
-        currId.angle = currId.angle - 0.01;
+        currId.angle = currId.angle - 0.03;
+    }
+    else if(event.key == 't'){
+        console.log(allTheBodies);
     }
     else if(event.key === 'l'){
         console.log('pressed l, everything is now frozen or released');
         for( i=0; i<stack.bodies.length; i++){
             // stack.bodies[i].isStatic = !stack.bodies[i].isStatic
             stack.bodies[i].frictionAir = 0.1;
+            
             Matter.Body.setVelocity(stack.bodies[i], {x: 0, y:0});
             // Matter.Body.setPosition(stack.bodies[i], [updateVelocity=false]);
         };
         
+    }
+    else if(event.key === '0'){
+        Matter.Sleeping.set(allTheBodies[1], true);
+    }
+    else if(event.key === 'e'){
+        for( i = 0; i<stack.bodies.length; i++){
+            // stack.bodies[i].force.x = 0;
+            // stack.bodies[i].force.y = 0;
+            // Matter.Body.setSpeed(stack.bodies[i], 0);
+            // stack.bodies[i].isSleeping = true;
+            stack.bodies[i].sleepThreshold = 1;
+            Matter.Sleeping.set(stack.bodies[i], true);
+        }
+    }
+    else if(event.key === 'r'){
+        for( i = 0; i<stack.bodies.length; i++){
+            Matter.Sleeping.set(stack.bodies[i], false);
+        }
     }
 });
 
@@ -186,11 +210,11 @@ window.addEventListener('keydown', function(event) {
 
 
 
-
+let listBodies = [stack, ground, ground2, ground3, ground4, mouseConstraint];
 
 
 // load objs into world + mouseConstraint
-Matter.World.add(engine.world,[stack, ground, mouseConstraint]);
+Matter.World.add(engine.world,listBodies);
 
 
 // run engine
