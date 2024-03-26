@@ -13,6 +13,7 @@ let finalBody;
 let arrParts = [];
 let fillCol = [];
 let firstUpdate = true;
+
 let currCols = [];
 
 
@@ -87,7 +88,10 @@ function createBodiesFromJson(data) {
             friction: data['tangram'].friction,
             frictionAir: data['tangram'].frictionAir,
             frictionStatic: data['tangram'].frictionStatic,
-            collisionFilter: data['tangram'].collisionFilter
+            collisionFilter: data['tangram'].collisionFilter,
+            render: {
+                // fillStyle: '#ffffff'
+            }
         });
 
         // now add body ('stack') onto composite ('compStack')
@@ -123,7 +127,7 @@ function createBodiesFromJson(data) {
 
 function randomColAssign() {
 
-    fillCol = ['#fae150', '#ee7d30', '#4899d3', '#273981', '#273981', '#ee7d30', '#fae150'];
+    fillCol = ['#fae150', '#ee7d30', '#4899d3', '#273981', '#273981', '#ee7d30', '#fae150' ];
 
     let colTemp = true;
 
@@ -145,13 +149,33 @@ function randomColAssign() {
             colTemp = assigncol;
 
             // console.log('this is the new colTemp: '+ colTemp)
+            currCols.push(assigncol);
         }
         else {
-            randomColAssign()
+            if (fillCol.length != 1){
+                let tempColor = fillCol[randNum]; // store repeated color in a temp var
+                fillCol.splice(randNum, 1); // remove the repeated color
+                let secondRandNum = Math.floor((Math.random() * (fillCol.length))); 
+                assigncol = fillCol[secondRandNum]; //find another color
+    
+                compStack.bodies[i].render.fillStyle = assigncol;
+                fillCol.push(tempColor); // push repeated color back into the array
+    
+                currCols.push(assigncol);
+            }
+            else{
+                compStack.bodies[i].render.fillStyle = assigncol;
+                colTemp = assigncol;
+
+                // console.log('this is the new colTemp: '+ colTemp)
+                currCols.push(assigncol);
+            }
         }
 
         fillCol.splice(randNum, 1);
+        console.log(currCols);
     };
+
     
 };
 
@@ -214,7 +238,8 @@ window.addEventListener('keydown', function (event) {
             inertia: Infinity,
             friction: 10,
             restitution: 0,
-            sleepThreshold: 1
+            sleepThreshold: 1,
+            
         });
 
         arrParts = [];
@@ -266,10 +291,15 @@ window.addEventListener('keydown', function (event) {
 
         arrParts.forEach(part => {
             let part1 = Matter.Body.create({
-                parts: [part]
+                parts: [part],
+                render: {
+                    fillStyle: currCols[arrParts.indexOf(part)]
+                }
             });
             Matter.Composite.add(compStack, part1);
         });
+
+
 
         // compStack.bodies = arrParts;
         // Matter.World.add(engine.world, compStack);
@@ -304,7 +334,7 @@ window.addEventListener('keydown', function (event) {
 // Call random color function after initializing
 Matter.Events.on(engine, 'afterUpdate', function () {
     if (firstUpdate) {
-        // randomColAssign();
+        randomColAssign();
         firstUpdate = false; // Prevent the function from being called again
     }
 });
