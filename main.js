@@ -69,8 +69,8 @@ render.mouse = mouse; // unsure
 // load json to make Vertices
 function createBodiesFromJson(data) {
     const fixtures = data['tangram'].fixtures;
-    const posArrX = [551 + xOff,607 + xOff,734 + xOff,605 + xOff,697 + xOff,653 + xOff, 773];
-    const posArrY = [300 + yOff,300 + yOff,300 + yOff,411 + yOff,453 + yOff,344 + yOff, 306];
+    const posArrX = [551 + xOff, 607 + xOff, 734 + xOff, 605 + xOff, 697 + xOff, 653 + xOff, 773];
+    const posArrY = [300 + yOff, 300 + yOff, 300 + yOff, 411 + yOff, 453 + yOff, 344 + yOff, 306];
 
     compStack = Matter.Composite.create();
     for (i = 0; i < 7; i++) {
@@ -118,13 +118,13 @@ function createBodiesFromJson(data) {
     // });
 };
 
-function randomColAssign(){
+function randomColAssign() {
 
-    fillCol = ['#fae150','#ee7d30', '#4899d3', '#273981','#273981','#ee7d30','#fae150'];
+    fillCol = ['#fae150', '#ee7d30', '#4899d3', '#273981', '#273981', '#ee7d30', '#fae150'];
 
     let colTemp = true;
-    
-    for( i = 0; i<compStack.bodies.length; i++){
+
+    for (i = 0; i < compStack.bodies.length; i++) {
 
         // console.log(fillCol);
 
@@ -133,10 +133,10 @@ function randomColAssign(){
         let randNum = Math.floor((Math.random() * (fillCol.length)));
 
         // console.log('this is randNum: ' + randNum);
-        
+
         let assigncol = fillCol[randNum];
 
-        if (colTemp === true || colTemp != assigncol){
+        if (colTemp === true || colTemp != assigncol) {
 
             compStack.bodies[i].render.fillStyle = assigncol;
             colTemp = assigncol;
@@ -151,40 +151,48 @@ function randomColAssign(){
     };
 };
 
-window.addEventListener('keydown', function(event) {
-    if(event.key === 't'){
+window.addEventListener('keydown', function (event) {
+    if (event.key === 't') {
         // debugging key
 
         // console.log(currId);
         // console.log(compStack);
 
+        // console.log(finalBody);
+
         // this accesses color
-        console.log(compStack.bodies[0].render.fillStyle);
+        // console.log(compStack.bodies[0].render.fillStyle);
+
+        console.log('this is arrParts: ')
+        console.log(arrParts);
+
+        console.log('this is compStack: ')
+        console.log(compStack);
     }
 
-    else if(event.key === 'q'){
+    else if (event.key === 'q') {
         currId.angle = currId.angle - 0.03;
     }
 
-    else if(event.key === 'w'){
+    else if (event.key === 'w') {
         currId.angle = currId.angle + 0.03;
     }
 
-    else if(event.key === 'e'){
+    else if (event.key === 'e') {
         // console.log(compStack.bodies);
-        for( i = 0; i<compStack.bodies.length; i++){
+        for (i = 0; i < compStack.bodies.length; i++) {
             compStack.bodies[i].sleepThreshold = 1;
             Matter.Sleeping.set(compStack.bodies[i], true);
         };
     }
 
-    else if(event.key === 'r'){
-        for( i = 0; i<compStack.bodies.length; i++){
+    else if (event.key === 'r') {
+        for (i = 0; i < compStack.bodies.length; i++) {
             Matter.Sleeping.set(compStack.bodies[i], false);
         };
     }
 
-    else if(event.key === 's'){
+    else if (event.key === 's') {
         finalBody = Matter.Body.create({
             inertia: Infinity,
             friction: 10,
@@ -193,7 +201,7 @@ window.addEventListener('keydown', function(event) {
         });
 
         // add all bodies onto ('arrParts')
-        for (i = 0; i < compStack.bodies.length; i++){
+        for (i = 0; i < compStack.bodies.length; i++) {
             arrParts.push(compStack.bodies[i])
         };
 
@@ -204,13 +212,29 @@ window.addEventListener('keydown', function(event) {
         compStack.bodies.splice(0, compStack.bodies.length);
         Matter.Composite.add(compStack, finalBody);
         Matter.World.add(engine.world, compStack);
+        console.log(compStack);
     }
 
+    else if (event.key === 'd') {
+
+        //remove id 14 from finalBody
+
+        // Matter.Composite.remove(compStack, finalBody);
+        Matter.Composite.clear(compStack);
+        Matter.Composite.remove(engine.world, compStack); // this works
+
+
+        compStack.bodies = arrParts;
+        Matter.World.add(engine.world, compStack);
+
+        console.log(compStack);
+    }
 
 });
 
 // Listen for the afterUpdate event
-Matter.Events.on(engine, 'afterUpdate', function() {
+// Call random color function after initializing
+Matter.Events.on(engine, 'afterUpdate', function () {
     if (firstUpdate) {
         randomColAssign();
         firstUpdate = false; // Prevent the function from being called again
