@@ -13,6 +13,7 @@ let finalBody;
 let arrParts = [];
 let fillCol = [];
 let firstUpdate = true;
+let currCols = [];
 
 
 
@@ -151,7 +152,9 @@ function randomColAssign() {
 
         fillCol.splice(randNum, 1);
     };
+    
 };
+
 
 window.addEventListener('keydown', function (event) {
     if (event.key === 't') {
@@ -230,6 +233,8 @@ window.addEventListener('keydown', function (event) {
         Matter.Composite.add(compStack, finalBody);
         Matter.World.add(engine.world, compStack);
         console.log(compStack);
+
+
 
     }
 
