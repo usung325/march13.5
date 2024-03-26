@@ -11,6 +11,9 @@ let stack;
 let compStack;
 let finalBody;
 let arrParts = [];
+let fillCol = [];
+let firstUpdate = true;
+
 
 // tracker for which obj clicked
 let currId = 0;
@@ -27,7 +30,9 @@ const runner = Matter.Runner.create();
 Matter.Events.on(runner, "tick", event => {
     if (mouseConstraint.body) { // the current body being moved by user
         console.log(mouseConstraint.body); // debugging
-        mouseConstraint.body.frictionAir = 0.1; // set frictionAir higher
+
+        mouseConstraint.body.frictionAir = 0.1; // set frictionAir higher when clicked
+
         currId = mouseConstraint.body;
     }
 });
@@ -113,13 +118,48 @@ function createBodiesFromJson(data) {
     // });
 };
 
+function randomColAssign(){
+
+    fillCol = ['#fae150','#ee7d30', '#4899d3', '#273981','#273981','#ee7d30','#fae150'];
+
+    let colTemp = true;
+    
+    for( i = 0; i<compStack.bodies.length; i++){
+
+        // console.log(fillCol);
+
+        // console.log( 'this is fillCol.length: ' + fillCol.length);
+
+        let randNum = Math.floor((Math.random() * (fillCol.length)));
+
+        // console.log('this is randNum: ' + randNum);
+        
+        let assigncol = fillCol[randNum];
+
+        if (colTemp === true || colTemp != assigncol){
+
+            compStack.bodies[i].render.fillStyle = assigncol;
+            colTemp = assigncol;
+
+            // console.log('this is the new colTemp: '+ colTemp)
+        }
+        else {
+            randomColAssign()
+        }
+
+        fillCol.splice(randNum, 1);
+    };
+};
+
 window.addEventListener('keydown', function(event) {
     if(event.key === 't'){
         // debugging key
 
         // console.log(currId);
         // console.log(compStack);
-        console.log(compStack.bodies);
+
+        // this accesses color
+        console.log(compStack.bodies[0].render.fillStyle);
     }
 
     else if(event.key === 'q'){
@@ -167,7 +207,19 @@ window.addEventListener('keydown', function(event) {
     }
 
 
-})
+});
+
+// Listen for the afterUpdate event
+Matter.Events.on(engine, 'afterUpdate', function() {
+    if (firstUpdate) {
+        randomColAssign();
+        firstUpdate = false; // Prevent the function from being called again
+    }
+});
+
+// Run the engine
+Matter.Runner.run(engine);
+
 
 // load objs into world 
 Matter.World.add(engine.world, [ground, ground2, ground3, ground4, mouseConstraint]);
@@ -176,6 +228,7 @@ Matter.World.add(engine.world, [ground, ground2, ground3, ground4, mouseConstrai
 Matter.Runner.start(runner, engine);
 Matter.Runner.run(engine);
 Matter.Render.run(render);
+
 
 
 
