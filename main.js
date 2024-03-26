@@ -173,13 +173,15 @@ window.addEventListener('keydown', function (event) {
         // console.log('this is arrParts: ');
         // console.log(arrParts);
 
-        console.log('this is compStack: ');
-        console.log(compStack);
+        // console.log('this is compStack: ');
+        // console.log(compStack);
 
         // console.log('this is finalBody: ');
         // console.log(finalBody);
 
-        console.log(finalBody.parts);
+        // console.log(finalBody.parts);
+
+        console.log(Matter.Composite.allBodies(compStack));
     }
 
     else if (event.key === 'q') {
@@ -212,6 +214,8 @@ window.addEventListener('keydown', function (event) {
             sleepThreshold: 1
         });
 
+        arrParts = [];
+
         // add all bodies onto ('arrParts')
         for (i = 0; i < compStack.bodies.length; i++) {
             arrParts.push(compStack.bodies[i])
@@ -222,9 +226,11 @@ window.addEventListener('keydown', function (event) {
 
         // remove rest of compStack objects
         compStack.bodies.splice(0, compStack.bodies.length);
+
         Matter.Composite.add(compStack, finalBody);
         Matter.World.add(engine.world, compStack);
         console.log(compStack);
+
     }
 
     else if (event.key === 'p') {
@@ -245,18 +251,20 @@ window.addEventListener('keydown', function (event) {
 
     else if (event.key === 'l') {
         //remove id 14 from finalBody
+
         compStack.bodies.splice(0, compStack.bodies.length);
 
         Matter.Composite.remove(compStack, compStack.bodies);
         Matter.Composite.remove(engine.world, compStack);
         Matter.Composite.clear(compStack);
 
-        for(i=0; i<arrParts.length;i++){
+
+        arrParts.forEach(part => {
             let part1 = Matter.Body.create({
-                parts: [arrParts[i]]
+                parts: [part]
             });
             Matter.Composite.add(compStack, part1);
-        }
+        });
 
         // compStack.bodies = arrParts;
         // Matter.World.add(engine.world, compStack);
@@ -291,7 +299,7 @@ window.addEventListener('keydown', function (event) {
 // Call random color function after initializing
 Matter.Events.on(engine, 'afterUpdate', function () {
     if (firstUpdate) {
-        randomColAssign();
+        // randomColAssign();
         firstUpdate = false; // Prevent the function from being called again
     }
 });
