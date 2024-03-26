@@ -4,8 +4,11 @@ fetch('./temp.json')
     .catch(error => console.error('Error loading JSON file:', error));
 
 
-const xOff = 120;
-const yOff = 50;
+const xOff = window.innerWidth/2.2;
+const yOff = window.innerHeight/2.2;
+
+const xCounter = 551;
+const yCounter = 256;
 
 let stack;
 let compStack;
@@ -13,6 +16,7 @@ let finalBody;
 let arrParts = [];
 let fillCol = [];
 let firstUpdate = true;
+let currSleeping = false;
 
 let currCols = [];
 
@@ -73,8 +77,8 @@ render.mouse = mouse; // unsure
 // load json to make Vertices
 function createBodiesFromJson(data) {
     const fixtures = data['tangram'].fixtures;
-    const posArrX = [551 + xOff, 607 + xOff, 734 + xOff, 605 + xOff, 697 + xOff, 653 + xOff, 773];
-    const posArrY = [300 + yOff, 300 + yOff, 300 + yOff, 411 + yOff, 453 + yOff, 344 + yOff, 306];
+    const posArrX = [551 + xOff - xCounter, 607 + xOff - xCounter, 734 + xOff - xCounter, 605 + xOff -xCounter, 697 + xOff -xCounter, 653 + xOff-xCounter, 652 + xOff-xCounter];
+    const posArrY = [300 + yOff - yCounter, 300 + yOff - yCounter, 300 + yOff - yCounter, 411 + yOff - yCounter, 453 + yOff - yCounter, 344 + yOff - yCounter, 256 + yOff - yCounter];
 
     compStack = Matter.Composite.create();
     for (i = 0; i < 7; i++) {
@@ -127,7 +131,7 @@ function createBodiesFromJson(data) {
 
 function randomColAssign() {
 
-    fillCol = ['#fae150', '#ee7d30', '#4899d3', '#273981', '#273981', '#ee7d30', '#fae150' ];
+    fillCol = ['#fae150', '#ee7d30', '#4899d3', '#273981', '#273981', '#ee7d30', '#fae150'];
 
     let colTemp = true;
 
@@ -152,18 +156,18 @@ function randomColAssign() {
             currCols.push(assigncol);
         }
         else {
-            if (fillCol.length != 1){
+            if (fillCol.length != 1) {
                 let tempColor = fillCol[randNum]; // store repeated color in a temp var
                 fillCol.splice(randNum, 1); // remove the repeated color
-                let secondRandNum = Math.floor((Math.random() * (fillCol.length))); 
+                let secondRandNum = Math.floor((Math.random() * (fillCol.length)));
                 assigncol = fillCol[secondRandNum]; //find another color
-    
+
                 compStack.bodies[i].render.fillStyle = assigncol;
                 fillCol.push(tempColor); // push repeated color back into the array
-    
+
                 currCols.push(assigncol);
             }
-            else{
+            else {
                 compStack.bodies[i].render.fillStyle = assigncol;
                 colTemp = assigncol;
 
@@ -176,8 +180,25 @@ function randomColAssign() {
         console.log(currCols);
     };
 
-    
+
 };
+
+window.addEventListener('mousedown', () => {
+    if (currSleeping) {
+        for (i = 0; i < compStack.bodies.length; i++) {
+            compStack.bodies[i].sleepThreshold = 1;
+            Matter.Sleeping.set(compStack.bodies[i], true);
+        }
+    }
+})
+window.addEventListener('mouseup', () => {
+    if (currSleeping) {
+        for (i = 0; i < compStack.bodies.length; i++) {
+            compStack.bodies[i].sleepThreshold = 1;
+            Matter.Sleeping.set(compStack.bodies[i], true);
+        }
+    }
+})
 
 
 window.addEventListener('keydown', function (event) {
@@ -220,6 +241,8 @@ window.addEventListener('keydown', function (event) {
     }
 
     else if (event.key === 'e') {
+        currSleeping = true;
+
         // console.log(compStack.bodies);
         for (i = 0; i < compStack.bodies.length; i++) {
             compStack.bodies[i].sleepThreshold = 1;
@@ -238,8 +261,7 @@ window.addEventListener('keydown', function (event) {
             inertia: Infinity,
             friction: 10,
             restitution: 0,
-            sleepThreshold: 1,
-            
+            sleepThreshold: 1
         });
 
         arrParts = [];
@@ -252,15 +274,61 @@ window.addEventListener('keydown', function (event) {
         // ('arrParts') made up on ('compStack.bodies[i]') added to parent body aka ('finalBody')
         Matter.Body.setParts(finalBody, arrParts);
 
+
+        // for (i = 0; i < compStack.bodies.length; i++){
+        //     console.log(compStack.bodies[i].render.fillStyle);
+        //     compStack.bodies[i].render.fillStyle = '#ffffff'  //changes color of all once pressed 's'
+        // }
+
+
         // remove rest of compStack objects
         compStack.bodies.splice(0, compStack.bodies.length);
 
         Matter.Composite.add(compStack, finalBody);
+
+        // compStack.bodies[0].render.fillStyle = '#ffffff'; // this only changes the color of bodies for id:14
+
         Matter.World.add(engine.world, compStack);
-        console.log(compStack);
+        // console.log(compStack);
+        // console.log('below is compStack.bodies');
+        // console.log(compStack.bodies);
 
 
 
+    }
+
+    else if (event.key === 'l') {
+        //remove id 14 from finalBody
+
+
+
+
+        compStack.bodies.splice(0, compStack.bodies.length);
+
+        Matter.Composite.remove(compStack, compStack.bodies);
+        Matter.Composite.remove(engine.world, compStack);
+        Matter.Composite.clear(compStack);
+
+
+
+
+        arrParts.forEach(part => {
+            let part1 = Matter.Body.create({
+                parts: [part],
+                render: {
+                    // fillStyle: currCols[0]
+                    fillStyle: currCols[arrParts.indexOf(part)]
+                }
+            });
+            Matter.Composite.add(compStack, part1);
+        });
+
+
+
+
+
+        // compStack.bodies = arrParts;
+        // Matter.World.add(engine.world, compStack);
     }
 
     else if (event.key === 'p') {
@@ -277,32 +345,6 @@ window.addEventListener('keydown', function (event) {
         compStack.bodies = arrParts;
 
         Matter.World.add(engine.world, compStack);
-    }
-
-    else if (event.key === 'l') {
-        //remove id 14 from finalBody
-
-        compStack.bodies.splice(0, compStack.bodies.length);
-
-        Matter.Composite.remove(compStack, compStack.bodies);
-        Matter.Composite.remove(engine.world, compStack);
-        Matter.Composite.clear(compStack);
-
-
-        arrParts.forEach(part => {
-            let part1 = Matter.Body.create({
-                parts: [part],
-                render: {
-                    fillStyle: currCols[arrParts.indexOf(part)]
-                }
-            });
-            Matter.Composite.add(compStack, part1);
-        });
-
-
-
-        // compStack.bodies = arrParts;
-        // Matter.World.add(engine.world, compStack);
     }
 
     else if (event.key === 'd') {
@@ -326,6 +368,24 @@ window.addEventListener('keydown', function (event) {
 
         // Add compStack back to the world
         Matter.World.add(engine.world, compStack);
+    }
+
+    else if (event.key === 'v') {
+        // need to import ressurect-js
+        // https://github.com/skeeto/resurrect-js
+
+        // Assuming `bodies` is an array of Matter.js bodies
+        const bodiesData = compStack.map(body => ({
+            position: body.position,
+            vertices: body.vertices,
+            density: body.density,
+            restitution: body.restitution,
+            // Add other properties as needed
+        }));
+
+        const jsonString = JSON.stringify(bodiesData);
+
+        // Save `jsonString` to a file
     }
 
 });
