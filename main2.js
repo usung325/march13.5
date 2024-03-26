@@ -135,7 +135,8 @@ window.addEventListener('keydown', function(event) {
     else if(event.key == 't'){
         // console.log(stack);
         // console.log(listBodies);
-        console.log(stack.bodies[0])
+        // console.log(stack.bodies[0])
+        console.log(stack);
     }
     else if(event.key === 'l'){
         console.log('pressed l, everything is now frozen or released');

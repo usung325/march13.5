@@ -15,6 +15,8 @@ let fillCol = [];
 let firstUpdate = true;
 
 
+
+
 // tracker for which obj clicked
 let currId = 0;
 
@@ -163,11 +165,21 @@ window.addEventListener('keydown', function (event) {
         // this accesses color
         // console.log(compStack.bodies[0].render.fillStyle);
 
-        console.log('this is arrParts: ')
-        console.log(arrParts);
 
-        console.log('this is compStack: ')
+
+        ////////////////////////////////////////////////////////////////////////////////
+
+
+        // console.log('this is arrParts: ');
+        // console.log(arrParts);
+
+        console.log('this is compStack: ');
         console.log(compStack);
+
+        // console.log('this is finalBody: ');
+        // console.log(finalBody);
+
+        console.log(finalBody.parts);
     }
 
     else if (event.key === 'q') {
@@ -215,19 +227,62 @@ window.addEventListener('keydown', function (event) {
         console.log(compStack);
     }
 
-    else if (event.key === 'd') {
-
+    else if (event.key === 'p') {
         //remove id 14 from finalBody
 
         // Matter.Composite.remove(compStack, finalBody);
-        Matter.Composite.clear(compStack);
         Matter.Composite.remove(engine.world, compStack); // this works
 
+        Matter.Composite.clear(compStack); // Removes all bodies, constraints and composites from the given composite.
 
+        finalBody.parts.splice(0, finalBody.parts.length);
+
+        Matter.Body.setParts(finalBody, arrParts); // this works
         compStack.bodies = arrParts;
-        Matter.World.add(engine.world, compStack);
 
-        console.log(compStack);
+        Matter.World.add(engine.world, compStack);
+    }
+
+    else if (event.key === 'l') {
+        //remove id 14 from finalBody
+        compStack.bodies.splice(0, compStack.bodies.length);
+
+        Matter.Composite.remove(compStack, compStack.bodies);
+        Matter.Composite.remove(engine.world, compStack);
+        Matter.Composite.clear(compStack);
+
+        for(i=0; i<arrParts.length;i++){
+            let part1 = Matter.Body.create({
+                parts: [arrParts[i]]
+            });
+            Matter.Composite.add(compStack, part1);
+        }
+
+        // compStack.bodies = arrParts;
+        // Matter.World.add(engine.world, compStack);
+    }
+
+    else if (event.key === 'd') {
+        // Remove compStack from the world
+        Matter.Composite.remove(engine.world, compStack);
+
+        // Clear compStack
+        Matter.Composite.clear(compStack);
+
+        Matter.Body.setParts(finalBody, []);
+        Matter.Body.setParts(finalBody, arrParts);
+
+        compStack.bodies = finalBody.parts;
+        // compStack.bodies.splice(0,1);
+
+        // // Ensure finalBody is not already in compStack
+        // if (!compStack.bodies.includes(finalBody)) {
+        //     // Add finalBody back to compStack
+        //     Matter.Composite.add(compStack, finalBody);
+        // }
+
+        // Add compStack back to the world
+        Matter.World.add(engine.world, compStack);
     }
 
 });
@@ -252,6 +307,7 @@ Matter.World.add(engine.world, [ground, ground2, ground3, ground4, mouseConstrai
 Matter.Runner.start(runner, engine);
 Matter.Runner.run(engine);
 Matter.Render.run(render);
+
 
 
 
